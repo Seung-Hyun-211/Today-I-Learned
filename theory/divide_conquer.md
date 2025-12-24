@@ -12,7 +12,7 @@
 #### 1~n의 합
 
 FastSum(n) = 2 * FastSum(n/2) + (n/2)^(n/2)
-```
+```c
 int FastSum(int n)
 {
     if(n == 1)
@@ -27,7 +27,7 @@ int FastSum(int n)
 #### 거듭제곱
 
 A^m = A^(m/2)*A^(m/2)
-```
+```c
 int pow(const int& A, int m)
 {
     if(m == 0)

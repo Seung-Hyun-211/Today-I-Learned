@@ -18,7 +18,7 @@
 >두 문자열의 마지막에 도착한 경우 true를 반환<br>
 >와일드카드 ```'*'```을 만난 경우 반복문을 통해 가능한( pos+skip < s.size() ) 모든 문자를 스킵하여 재귀 호출
 
-```
+```c
 bool match(const string& w, const string& s)
 {
     int pos = 0;
@@ -48,7 +48,7 @@ bool match(const string& w, const string& s)
 > 크게 달라지는 부분은 없다.<br>
 > 단지 cache를 통해 계산을 하면 저장하고 중복 계산을 하지 않을 뿐이다.<br>
 
-```
+```c
 string wild, str;
 int cache[101][101];
 
