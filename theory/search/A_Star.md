@@ -31,7 +31,6 @@
 #define MOVEABLE_DIRECTION 8    // 모든 방향의 총 갯수
 #define MAX_MAP_SIZE 1000       // 맵 사이즈
 
-
 struct Node {
     Node(int px, int py, int g, int h) : px(px), py(py), g(g), h(h) {}
 
@@ -56,13 +55,21 @@ int GetH(const int& cx, const int& cy, const int& gx, const int& gy) {
     int dy = cy - gy;
     return (int)floor(COST_UNIT * sqrt(dx * dx + dy * dy));
 }
-
+struct SFrom
+{
+    SFrom(int x, int y) : x(x), y(y) {}
+    SFrom() {};
+    int x = -1;
+    int y = -1;
+};
 
 int AStar(const vector<vector<bool>>& m, const int& startx, const int& starty, const int& goalx, const int& goaly)
 {
     int step = 0;
     priority_queue<Node, vector<Node>, NodeCompare> q;
     vector<vector<bool>> visit(MAX_MAP_SIZE, vector<bool>(MAX_MAP_SIZE, false));
+    vector<vector<SFrom>> from(MAX_MAP_SIZE, vector<SFrom>(MAX_MAP_SIZE));
+    vector<vector<int>> fTable(MAX_MAP_SIZE, vector<int>(MAX_MAP_SIZE, INT_MAX));
     q.push(Node(startx, starty, 0, GetH(startx, starty, goalx, goaly)));
 
     //8방향 이동
@@ -74,11 +81,11 @@ int AStar(const vector<vector<bool>>& m, const int& startx, const int& starty, c
         Node n = q.top();
         visit[n.py][n.px] = true;
         n.Print();
+        q.pop();
         if (n.px == goalx && n.py == goaly)
         {
-            return step;
+            break;
         }
-        q.pop();
         for (int i = 0; i < MOVEABLE_DIRECTION; i++)
         {
             int nx = n.px + dirx[i];
@@ -88,11 +95,25 @@ int AStar(const vector<vector<bool>>& m, const int& startx, const int& starty, c
 
             int gCost = i % 2 == 0 ? STRAIGHT_COST : DIAGONAL_COST;
             q.push(Node(nx, ny, n.g + gCost, GetH(nx, ny, goalx, goaly)));
-        }
 
-        step++;
+            if(fTable[ny][nx] > q.top().F())
+                from[ny][nx] = SFrom(n.px, n.py);
+        }
     }
 
-    return -1;
+    int cx = goalx;
+    int cy = goaly;
+    cout << "x:" << cx << " y:" << cy << endl;
+    while (true) {
+
+        SFrom f = from[cy][cx];
+        cx = f.x;
+        cy = f.y;
+        cout <<" y:" << cy << "x:" << cx << endl;
+        step++;
+        if(cx == startx && cy == starty)
+            return step;
+    }
 }
+
 ```
