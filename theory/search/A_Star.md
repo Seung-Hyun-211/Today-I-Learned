@@ -14,15 +14,17 @@
 ```g(n)``` : 출발 지점부터 꼭짓점 n 까지의 경로 가중치<br>
 ```h(n)``` : 꼭짓점 n 으로부터 목표까지의 추정 경로 가중치
 
+![이미지](../../Image/astar_test.png)
+
 ## 변경 Log
 
 >  탐색을 통해 도달 할 수 있는지 판단 확인했음<br>
 > 
->  하지만이동경로를 찾을 수 없음<br>
+>  하지만 이동경로를 찾을 수 없음<br>
 >  from 테이블을 만들어서 해결<br>
 > 
 >  최단거리가 기록되지 않음<br>
->  F() 테이블을 만들어 cost를 비교해 짧은 거리를 from에 저장해서 해결
+>  g저장 테이블을 만들어 cost를 비교해 짧은 거리를 from에 저장해서 비교해서 해결
 
 ```cpp
 #define COST_UNIT 10            // g값과 단위를 맞추기 위한 수
@@ -31,6 +33,7 @@
 #define MOVEABLE_DIRECTION 8    // 모든 방향의 총 갯수
 #define MAX_MAP_SIZE 1000       // 맵 사이즈
 
+//탐색 노드
 struct Node {
     Node(int px, int py, int g, int h) : px(px), py(py), g(g), h(h) {}
 
@@ -44,32 +47,33 @@ struct Node {
         cout << "/ x " << px << "/ y " << py << "/ g " << g << "/ h " << h <<"/ f" << F() << endl;
     }
 };
-struct NodeCompare
-{
+//priority queue 정렬용 구조체
+struct NodeCompare {
     bool operator()(const Node& n1, const Node& n2) const {
         return n1.F() > n2.F();
     }
 };
+//휴리스틱 추정값 h
 int GetH(const int& cx, const int& cy, const int& gx, const int& gy) {
     int dx = cx - gx;
     int dy = cy - gy;
     return (int)floor(COST_UNIT * sqrt(dx * dx + dy * dy));
 }
-struct SFrom
-{
+//경로 저장용 구조체
+struct SFrom {
     SFrom(int x, int y) : x(x), y(y) {}
     SFrom() {};
     int x = -1;
     int y = -1;
 };
 
-int AStar(const vector<vector<bool>>& m, const int& startx, const int& starty, const int& goalx, const int& goaly)
-{
-    int step = 0;
+vector<pair<int, int>> AStar(const vector<vector<bool>>& m, const int& startx, const int& starty, const int& goalx, const int& goaly) {
     priority_queue<Node, vector<Node>, NodeCompare> q;
     vector<vector<bool>> visit(MAX_MAP_SIZE, vector<bool>(MAX_MAP_SIZE, false));
     vector<vector<SFrom>> from(MAX_MAP_SIZE, vector<SFrom>(MAX_MAP_SIZE));
-    vector<vector<int>> fTable(MAX_MAP_SIZE, vector<int>(MAX_MAP_SIZE, INT_MAX));
+    vector<vector<int>> gScore(MAX_MAP_SIZE, vector<int>(MAX_MAP_SIZE, INT_MAX));
+
+    gScore[starty][startx] = 0;
     q.push(Node(startx, starty, 0, GetH(startx, starty, goalx, goaly)));
 
     //8방향 이동
@@ -79,41 +83,63 @@ int AStar(const vector<vector<bool>>& m, const int& startx, const int& starty, c
 
     while (!q.empty()) {
         Node n = q.top();
+        q.pop();
+
+        if (visit[n.py][n.px])
+            continue;
+
         visit[n.py][n.px] = true;
         n.Print();
-        q.pop();
+
         if (n.px == goalx && n.py == goaly)
-        {
             break;
-        }
-        for (int i = 0; i < MOVEABLE_DIRECTION; i++)
-        {
+
+        for (int i = 0; i < MOVEABLE_DIRECTION; i++) {
             int nx = n.px + dirx[i];
             int ny = n.py + diry[i];
-            if (nx < 0 || ny < 0 || nx >= MAX_MAP_SIZE || ny >= MAX_MAP_SIZE || m[ny][nx] == false || visit[ny][nx] == true)
+
+            if (nx < 0 || ny < 0 || nx >= MAX_MAP_SIZE || ny >= MAX_MAP_SIZE)
+                continue;
+            if (!m[ny][nx] || visit[ny][nx])
                 continue;
 
-            int gCost = i % 2 == 0 ? STRAIGHT_COST : DIAGONAL_COST;
-            q.push(Node(nx, ny, n.g + gCost, GetH(nx, ny, goalx, goaly)));
+            int gCost = (i % 2 == 0) ? STRAIGHT_COST : DIAGONAL_COST;
+            int tentativeG = n.g + gCost;
 
-            if(fTable[ny][nx] > q.top().F())
+            if (tentativeG < gScore[ny][nx]) {
+                gScore[ny][nx] = tentativeG;
                 from[ny][nx] = SFrom(n.px, n.py);
+
+                q.push(Node(
+                    nx, ny,
+                    tentativeG,
+                    GetH(nx, ny, goalx, goaly)
+                ));
+            }
         }
     }
 
+
+    cout << endl;
     int cx = goalx;
     int cy = goaly;
-    cout << "x:" << cx << " y:" << cy << endl;
-    while (true) {
+    int step = 0;
+    vector<pair<int, int>> path;
 
+    while (!(cx == startx && cy == starty)) {
+        path.push_back({ cx, cy });
         SFrom f = from[cy][cx];
+        cout << " / y:" << f.y << " / x:" << f.x << endl;
+        step++;
+        if (f.x == -1 && f.y == -1)
+            break;
+
         cx = f.x;
         cy = f.y;
-        cout <<" y:" << cy << "x:" << cx << endl;
-        step++;
-        if(cx == startx && cy == starty)
-            return step;
     }
-}
 
+    path.push_back({ startx, starty });
+    reverse(path.begin(), path.end());
+    return path;
+}
 ```
