@@ -1,4 +1,6 @@
-# [DHCP](https://ko.wikipedia.org/wiki/동적_호스트_구성_프로토콜)
+# 라우터
+
+## [DHCP](https://ko.wikipedia.org/wiki/동적_호스트_구성_프로토콜)
 Dynamic Host Configuration Protocol<br>
 공유기에서 클라이언트의 IP를 동적으로 구성하는 방법
 
@@ -23,3 +25,23 @@ Dynamic Host Configuration Protocol<br>
 
 DHCP는 Offer 패킷에서 알 수 있듯이 임대 기간을 가지고 있으며 얼마나 인터넷 접속이 필요할 것인지에 따라 달라질 수 있다.<br>
 영구적인 IP 주소를 필요로 하는 웹 서버에 대해서는 정적인 주소를 제공한다.
+
+
+## [NAT](https://ko.wikipedia.org/wiki/네트워크_주소_변환)
+
+### NAT의 종류
+network address tranlation
+- SNAT : 미리 설정한 공인 IP주소를 할당하는 방식
+
+- DNAT : 내부 내트워크의 각 기기가 외부 네트워크와 통신할 때 동적으로 공인IP를 할당하는 방식<br>
+   사용가능한 IP를 할당받아 사용하다가 사용을 마치면 해당 IP주소를 반환하여 다른 기기가 다시 IP를 할당받을 수 있게 한다.
+
+- PAT (prot address translation) : 내부 네트워크의 여러 기기가 하나의 공인IP를 사용하되 고유한 포트 번호를 할당받아 통신하는 방식<br>
+   하나의 공인IP를사용하지만 포트번호를 통해 서로를 구분할 수 있다.<br>
+   이 방식은 IP주소 부족 문제를 해결할 수 있을 뿐만 아니라 외부에서는 하나의 IP로 보이기 때문에 보안이 향상될 수 있다.
+
+
+## [포트포워딩](https://ko.wikipedia.org/wiki/포트_포워딩)
+
+외부에서 사설 IP 주소를 사용하는 서버 컴퓨터로 접속 할 수 있게 해주는 설정
+라우터에 포트 포워딩을 해두면 라우터에서 패킷을 받았을 때 해당 컴퓨터로 패킷을 보낸다.
